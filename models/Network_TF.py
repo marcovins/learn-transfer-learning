@@ -91,12 +91,20 @@ class Network_TF:
         self._val_dataset = self._load_dataset(val_path)
 
     def _get_weights(self):
-        logger.info("Carregando MobileNetV2 com pesos da ImageNet...")
-        input_shape = self.image_size + (3,)
-        base_model = MobileNetV2(weights="imagenet", include_top=False, input_shape=input_shape)
-        base_model.trainable = False
-        logger.info("Base congelada.")
-        return base_model
+        weights_path = "models/weights/final_model.keras"
+        if os.path.exists(weights_path):
+            logger.info(f"Carregando modelo salvo de {weights_path}...")
+            model = tf.keras.models.load_model(weights_path)
+            logger.info("Modelo carregado com sucesso.")
+            # Se for um modelo completo, retorna como base_model para manter compatibilidade
+            return model
+        else:
+            logger.info("Carregando MobileNetV2 com pesos da ImageNet...")
+            input_shape = self.image_size + (3,)
+            base_model = MobileNetV2(weights="imagenet", include_top=False, input_shape=input_shape)
+            base_model.trainable = False
+            logger.info("Base congelada.")
+            return base_model
 
     def _custom_head(self):
         logger.info("Construindo head personalizada...")
